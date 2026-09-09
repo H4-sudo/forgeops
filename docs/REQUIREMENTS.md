@@ -789,35 +789,62 @@ Do not build these unless they become necessary for another feature.
 
 ---
 
-# 27. Engineering Principles
+# 27. Engineering Philosophy
 
-ForgeOps should favour:
+ForgeOps is an MVP.
 
-* Simple solutions
-* Clear code
-* Explicit business rules
-* Logical boundaries
-* Maintainability
-* Testability
-* Good naming
-* Useful abstractions
-* Practical engineering decisions
+The primary objective is to produce working software that solves the
+defined problem.
 
-Do not introduce abstractions purely because a design pattern says you should.
+Code structure does not need to be perfect on the first pass.
 
-Avoid unnecessary:
+Prefer:
 
-* Interfaces
-* Factories
-* Generic repositories
-* Service layers with no real purpose
-* Excessive dependency injection
-* Abstractions around abstractions
-* Over-engineered architecture
+- Simple code
+- Clear naming
+- Logical grouping
+- Explicit business rules
+- Small, understandable functions
+- Minimal unnecessary abstraction
 
-If a simple solution is the correct solution, use it.
+Avoid introducing architectural patterns unless they solve an actual
+problem in the application.
 
-Architecture should follow the problem.
+Do not implement patterns for the sake of demonstrating knowledge of
+those patterns.
+
+The following are NOT requirements:
+
+- Clean Architecture
+- CQRS
+- MediatR
+- Repository Pattern
+- Unit of Work
+- Domain-Driven Design
+- Generic repositories
+- Event sourcing
+- Dependency injection everywhere
+- Interfaces for every class
+- Abstract factories
+- Excessive service layers
+
+If a pattern genuinely solves a problem encountered during development,
+it may be introduced.
+
+Otherwise, don't.
+
+---
+
+## Refactoring
+
+Refactoring is expected after functionality has been proven.
+
+If an area becomes difficult to understand, difficult to test, duplicated,
+or difficult to extend, refactor it.
+
+The first implementation does not need to be the final implementation.
+
+Correctness comes before architectural perfection.
 
 ---
 
