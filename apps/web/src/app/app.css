@@ -1,0 +1,2 @@
+/* Scoped to <app-root> only. The design system lives in src/styles.css —
+   :root and html/body rules do not work here (Angular scopes every selector). */

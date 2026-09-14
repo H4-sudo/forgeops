@@ -1,3 +1,114 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+/* ==========================================================================
+   FORGEOPS INDUSTRIAL DESIGN SYSTEM
+   Global stylesheet — registered in angular.json. Anything defined here is
+   visible to every component; component stylesheets are scoped and are not.
+   ========================================================================== */
+
+@theme {
+  /* Brand Palette — also generates bg-/text-/border-forge-* utilities */
+  --color-forge-primary: #18181b;       /* Zinc 900 / Charcoal */
+  --color-forge-primary-hover: #27272a; /* Zinc 800 */
+  --color-forge-accent: #f97316;        /* Forge Orange */
+  --color-forge-accent-hover: #ea580c;  /* Darker Orange */
+  --color-forge-surface: #27272a;       /* Card/Panel Background */
+  --color-forge-border: #3f3f46;        /* Zinc 700 / Steel Border */
+  --color-forge-text: #ffffff;          /* Clean White */
+  --color-forge-muted: #a1a1aa;         /* Zinc 400 Secondary Text */
+
+  /* Structural — generates font-sans, font-mono, rounded-sharp */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sharp: 0px;                  /* Strict industrial angles */
+}
+
+:root {
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   GLOBAL RESET & BASE STYLES
+   ========================================================================== */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: var(--color-forge-primary);
+  color: var(--color-forge-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-forge-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-forge-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-forge-accent);
+}
+
+/* ==========================================================================
+   INDUSTRIAL UI UTILITIES
+   ========================================================================== */
+
+@layer components {
+  /* High-contrast Forge Accent Lines */
+  .forge-accent-top {
+    border-top: 2px solid var(--color-forge-accent);
+  }
+
+  .forge-accent-left {
+    border-left: 2px solid var(--color-forge-accent);
+  }
+
+  /* Steel Panel / Card Container */
+  .forge-panel {
+    background-color: var(--color-forge-surface);
+    border: 1px solid var(--color-forge-border);
+    border-radius: var(--radius-sharp);
+    padding: 1.5rem;
+  }
+
+  /* Utilitarian Primary Button */
+  .forge-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-forge-accent);
+    color: #000000;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: var(--radius-sharp);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
+
+  .forge-btn-primary:hover {
+    background-color: var(--color-forge-accent-hover);
+  }
+
+  /* Code & Data Display */
+  code,
+  pre,
+  .forge-mono {
+    font-family: var(--font-mono);
+  }
+}

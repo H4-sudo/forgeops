@@ -1,3 +1,11 @@
+![ForgeOps](./docs/readme-banner.png)
+
+![.NET](https://img.shields.io/badge/.NET-ASP.NET_Core-18181B?style=for-the-badge&logo=dotnet&logoColor=F97316)
+![Angular](https://img.shields.io/badge/Angular-18181B?style=for-the-badge&logo=angular&logoColor=F97316)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18181B?style=for-the-badge&logo=postgresql&logoColor=F97316)
+![Docker](https://img.shields.io/badge/Docker-18181B?style=for-the-badge&logo=docker&logoColor=F97316)
+![Status](https://img.shields.io/badge/status-initial_development-F97316?style=for-the-badge)
+
 # ForgeOps
 
 **Workshop Operations Management Platform**
