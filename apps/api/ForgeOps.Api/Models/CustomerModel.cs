@@ -1,6 +1,6 @@
 namespace ForgeOps.Api.Models;
 
-public sealed class Customer
+public sealed class CustomerModel
 {
     public int Id { get; set; }
     public string FirstName { get; set; } = string.Empty;
