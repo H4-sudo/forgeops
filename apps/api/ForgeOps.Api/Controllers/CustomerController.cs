@@ -32,6 +32,8 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
 
     [HttpPost]
     [ProducesResponseType(typeof(Models.CustomerModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Shared.BaseForgeOpsError), StatusCodes.Status500InternalServerError)]
     public IActionResult CreateCustomer(
     Data.ForgeOpsDbContext dbContext,
     [FromBody] Dtos.CustomerDto customer)
@@ -77,6 +79,8 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(Models.CustomerModel), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Shared.BaseForgeOpsError), StatusCodes.Status500InternalServerError)]
     public IActionResult UpdateCustomer(Data.ForgeOpsDbContext dbContext, int id, [FromBody] Dtos.CustomerDto customer)
     {
         var existingCustomer = dbContext.Customers.FirstOrDefault(c => c.Id == id);
@@ -109,6 +113,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(Shared.BaseForgeOpsError), StatusCodes.Status500InternalServerError)]
     public IActionResult DeleteCustomer(Data.ForgeOpsDbContext dbContext, int id)
     {
         var existingCustomer = dbContext.Customers.FirstOrDefault(c => c.Id == id);
@@ -176,7 +181,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         return paginationModel;
     }
 
-    private IActionResult ServerErrorResponse(DbUpdateException e, string message)
+    private ObjectResult ServerErrorResponse(DbUpdateException e, string message)
     {
         _logger.LogError(e, message);
         return StatusCode(
