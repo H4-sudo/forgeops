@@ -10,9 +10,13 @@ public class CustomerController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(Shared.PaginationModel<Models.CustomerModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public IActionResult GetCustomers(Data.ForgeOpsDbContext dbContext, int page = 1, int pageSize = 10, string searchTerm = "")
     {
+        if (page <= 0 || pageSize <= 0) return BadRequest("Page and PageSize must be greater than 0.");
+        if (pageSize > 100) return BadRequest("PageSize cannot be greater than 100.");
+
         if (!string.IsNullOrEmpty(searchTerm))
         {
             searchTerm = searchTerm.ToLower();
