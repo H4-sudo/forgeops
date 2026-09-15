@@ -53,14 +53,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         }
         catch (DbUpdateException e)
         {
-            _logger.LogError(e, "An error occurred while saving the customer");
-            return StatusCode(
-                StatusCodes.Status500InternalServerError,
-                new BaseForgeOpsError
-                {
-                    ErrorMessage = "An error occurred while saving the customer",
-                    ErrorTimestamp = DateTime.UtcNow
-                });
+            return ServerErrorResponse(e, "An error occurred while saving the customer");
         }
 
         return CreatedAtAction(nameof(GetCustomerById), new { id = newCustomer.Id }, newCustomer);
@@ -107,14 +100,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         }
         catch (DbUpdateException e)
         {
-            _logger.LogError(e, "An error occurred while updating the customer");
-            return StatusCode(
-                StatusCodes.Status500InternalServerError,
-                new BaseForgeOpsError
-                {
-                    ErrorMessage = "An error occurred while updating the customer",
-                    ErrorTimestamp = DateTime.UtcNow
-                });
+            return ServerErrorResponse(e, "An error occurred while updating the customer");
         }
 
         return Ok(existingCustomer);
@@ -139,14 +125,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         }
         catch (DbUpdateException e)
         {
-            _logger.LogError(e, "An error occurred while deleting the customer");
-            return StatusCode(
-                StatusCodes.Status500InternalServerError,
-                new BaseForgeOpsError
-                {
-                    ErrorMessage = "An error occurred while deleting the customer",
-                    ErrorTimestamp = DateTime.UtcNow
-                });
+            return ServerErrorResponse(e, "An error occurred while deleting the customer");
         }
 
         return NoContent();
@@ -195,5 +174,17 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
             Items = orderedFilteredCustomers
         };
         return paginationModel;
+    }
+
+    private IActionResult ServerErrorResponse(DbUpdateException e, string message)
+    {
+        _logger.LogError(e, message);
+        return StatusCode(
+            StatusCodes.Status500InternalServerError,
+            new BaseForgeOpsError
+            {
+                ErrorMessage = message,
+                ErrorTimestamp = DateTime.UtcNow
+            });
     }
 }
