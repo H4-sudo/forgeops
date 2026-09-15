@@ -1,11 +1,12 @@
 using ForgeOps.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ForgeOps.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CustomerController : ControllerBase
+public class CustomerController(ILogger<CustomerController> _logger) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(Shared.PaginationModel<Models.CustomerModel>), StatusCodes.Status200OK)]
@@ -44,8 +45,16 @@ public class CustomerController : ControllerBase
             Notes = customer.Notes
         };
 
-        dbContext.Customers.Add(newCustomer);
-        dbContext.SaveChanges();
+        try
+        {
+            dbContext.Customers.Add(newCustomer);
+            dbContext.SaveChanges();
+        }
+        catch (DbUpdateException e)
+        {
+            _logger.LogError(e, "An error occurred while saving the customer");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while saving the customer");
+        }
 
         return CreatedAtAction(nameof(GetCustomerById), new { id = newCustomer.Id }, newCustomer);
     }
@@ -85,7 +94,15 @@ public class CustomerController : ControllerBase
         existingCustomer.Notes = customer.Notes;
         existingCustomer.UpdatedAt = DateTime.UtcNow;
 
-        dbContext.SaveChanges();
+        try
+        {
+            dbContext.SaveChanges();
+        }
+        catch (DbUpdateException e)
+        {
+            _logger.LogError(e, "An error occurred while updating the customer");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the customer");
+        }
 
         return Ok(existingCustomer);
     }
@@ -102,8 +119,16 @@ public class CustomerController : ControllerBase
             return NotFound();
         }
 
-        dbContext.Customers.Remove(existingCustomer);
-        dbContext.SaveChanges();
+        try
+        {
+            dbContext.Customers.Remove(existingCustomer);
+            dbContext.SaveChanges();
+        }
+        catch (DbUpdateException e)
+        {
+            _logger.LogError(e, "An error occurred while deleting the customer");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the customer");
+        }
 
         return NoContent();
     }
