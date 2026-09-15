@@ -15,5 +15,5 @@ public sealed record CustomerDto
     [Required]
     public required string Address { get; init; }
     [StringLength(500, ErrorMessage = "Notes cannot exceed 500 characters.")]
-    public string Notes { get; init; } = string.Empty;
+    public string? Notes { get; init; } = string.Empty;
 }
