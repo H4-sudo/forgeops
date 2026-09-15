@@ -1,3 +1,4 @@
+using ForgeOps.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForgeOps.Api.Controllers;
@@ -7,14 +8,20 @@ namespace ForgeOps.Api.Controllers;
 public class CustomerController : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<Models.CustomerModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Shared.PaginationModel<Models.CustomerModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public IActionResult GetCustomers(Data.ForgeOpsDbContext dbContext)
+    public IActionResult GetCustomers(Data.ForgeOpsDbContext dbContext, int page = 1, int pageSize = 10, string searchTerm = "")
     {
-        var customers = dbContext.Customers.ToList();
+        if (!string.IsNullOrEmpty(searchTerm))
+        {
+            searchTerm = searchTerm.ToLower();
+            var customers = SearchCustomersByTermPaginated(dbContext, searchTerm, page, pageSize);
+            return Ok(customers);
+        }
 
-        return Ok(customers);
+        var allCustomers = OrderDataByLastNameAndFirstNamePaginated(dbContext, page, pageSize);
+        return Ok(allCustomers);
     }
 
     [HttpPost]
@@ -36,6 +43,109 @@ public class CustomerController : ControllerBase
         dbContext.Customers.Add(newCustomer);
         dbContext.SaveChanges();
 
-        return Created("", newCustomer);
+        return CreatedAtAction(nameof(GetCustomerById), new { id = newCustomer.Id }, newCustomer);
+    }
+
+    [HttpGet("{id}")]
+    [ProducesResponseType(typeof(Models.CustomerModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult GetCustomerById(Data.ForgeOpsDbContext dbContext, int id)
+    {
+        var customer = dbContext.Customers.FirstOrDefault(c => c.Id == id);
+
+        if (customer == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(customer);
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(Models.CustomerModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult UpdateCustomer(Data.ForgeOpsDbContext dbContext, int id, [FromBody] Dtos.CustomerDto customer)
+    {
+        var existingCustomer = dbContext.Customers.FirstOrDefault(c => c.Id == id);
+
+        if (existingCustomer == null)
+        {
+            return NotFound();
+        }
+
+        existingCustomer.FirstName = customer.FirstName;
+        existingCustomer.LastName = customer.LastName;
+        existingCustomer.Email = customer.Email;
+        existingCustomer.PhoneNumber = customer.PhoneNumber;
+        existingCustomer.Address = customer.Address;
+        existingCustomer.Notes = customer.Notes;
+        existingCustomer.UpdatedAt = DateTime.UtcNow;
+
+        dbContext.SaveChanges();
+
+        return Ok(existingCustomer);
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult DeleteCustomer(Data.ForgeOpsDbContext dbContext, int id)
+    {
+        var existingCustomer = dbContext.Customers.FirstOrDefault(c => c.Id == id);
+
+        if (existingCustomer == null)
+        {
+            return NotFound();
+        }
+
+        dbContext.Customers.Remove(existingCustomer);
+        dbContext.SaveChanges();
+
+        return NoContent();
+    }
+
+    private Shared.PaginationModel<Models.CustomerModel> OrderDataByLastNameAndFirstNamePaginated(Data.ForgeOpsDbContext dbContext, int page, int pageSize)
+    {
+        var orderedCustomers = dbContext.Customers
+            .OrderBy(c => c.LastName)
+            .ThenBy(c => c.FirstName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+        var paginationModel = new Shared.PaginationModel<Models.CustomerModel>
+        {
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = dbContext.Customers.Count(),
+            Items = orderedCustomers
+        };
+        return paginationModel;
+    }
+
+    private Shared.PaginationModel<Models.CustomerModel> SearchCustomersByTermPaginated(Data.ForgeOpsDbContext dbContext, string searchTerm, int page, int pageSize)
+    {
+        var lowerSearchTerm = searchTerm.ToLower();
+        var filteredCustomers = dbContext.Customers
+            .Where(c => c.FirstName.ToLower().Contains(lowerSearchTerm) ||
+                        c.LastName.ToLower().Contains(lowerSearchTerm) ||
+                        c.Email.ToLower().Contains(lowerSearchTerm) ||
+                        c.PhoneNumber.ToLower().Contains(lowerSearchTerm));
+        var totalCount = filteredCustomers.Count();
+
+        var orderedFilteredCustomers = filteredCustomers
+            .OrderBy(c => c.LastName)
+            .ThenBy(c => c.FirstName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        var paginationModel = new Shared.PaginationModel<Models.CustomerModel>
+        {
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            Items = orderedFilteredCustomers
+        };
+        return paginationModel;
     }
 }
