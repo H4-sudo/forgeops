@@ -18,6 +18,7 @@ public sealed class CustomerModel
     public required string Address { get; set; }
     [MaxLength(500, ErrorMessage = "Notes cannot exceed 500 characters.")]
     public string? Notes { get; set; }
+    public ICollection<VehicleModel>? Vehicles { get; set; }
     public DateTime CreatedAt { get; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

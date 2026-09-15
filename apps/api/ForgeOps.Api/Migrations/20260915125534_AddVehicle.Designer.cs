@@ -3,6 +3,7 @@ using System;
 using ForgeOps.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ForgeOps.Api.Migrations
 {
     [DbContext(typeof(ForgeOpsDbContext))]
-    partial class ForgeOpsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260915125534_AddVehicle")]
+    partial class AddVehicle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -78,6 +81,9 @@ namespace ForgeOps.Api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("CurrentOwnerId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CustomerId")
                         .HasColumnType("integer");
 
                     b.Property<string>("EngineType")
