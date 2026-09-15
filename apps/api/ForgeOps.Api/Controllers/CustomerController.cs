@@ -1,4 +1,5 @@
 using ForgeOps.Api.Models;
+using ForgeOps.Api.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ namespace ForgeOps.Api.Controllers;
 public class CustomerController(ILogger<CustomerController> _logger) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(Shared.PaginationModel<Models.CustomerModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Shared.BaseForgeOpsPagination<Models.CustomerModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -53,7 +54,13 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         catch (DbUpdateException e)
         {
             _logger.LogError(e, "An error occurred while saving the customer");
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while saving the customer");
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new BaseForgeOpsError
+                {
+                    ErrorMessage = "An error occurred while saving the customer",
+                    ErrorTimestamp = DateTime.UtcNow
+                });
         }
 
         return CreatedAtAction(nameof(GetCustomerById), new { id = newCustomer.Id }, newCustomer);
@@ -101,7 +108,13 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         catch (DbUpdateException e)
         {
             _logger.LogError(e, "An error occurred while updating the customer");
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the customer");
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new BaseForgeOpsError
+                {
+                    ErrorMessage = "An error occurred while updating the customer",
+                    ErrorTimestamp = DateTime.UtcNow
+                });
         }
 
         return Ok(existingCustomer);
@@ -127,13 +140,19 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         catch (DbUpdateException e)
         {
             _logger.LogError(e, "An error occurred while deleting the customer");
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the customer");
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new BaseForgeOpsError
+                {
+                    ErrorMessage = "An error occurred while deleting the customer",
+                    ErrorTimestamp = DateTime.UtcNow
+                });
         }
 
         return NoContent();
     }
 
-    private Shared.PaginationModel<Models.CustomerModel> OrderDataByLastNameAndFirstNamePaginated(Data.ForgeOpsDbContext dbContext, int page, int pageSize)
+    private Shared.BaseForgeOpsPagination<Models.CustomerModel> OrderDataByLastNameAndFirstNamePaginated(Data.ForgeOpsDbContext dbContext, int page, int pageSize)
     {
         var orderedCustomers = dbContext.Customers
             .OrderBy(c => c.LastName)
@@ -141,7 +160,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToList();
-        var paginationModel = new Shared.PaginationModel<Models.CustomerModel>
+        var paginationModel = new Shared.BaseForgeOpsPagination<Models.CustomerModel>
         {
             Page = page,
             PageSize = pageSize,
@@ -151,7 +170,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         return paginationModel;
     }
 
-    private Shared.PaginationModel<Models.CustomerModel> SearchCustomersByTermPaginated(Data.ForgeOpsDbContext dbContext, string searchTerm, int page, int pageSize)
+    private Shared.BaseForgeOpsPagination<Models.CustomerModel> SearchCustomersByTermPaginated(Data.ForgeOpsDbContext dbContext, string searchTerm, int page, int pageSize)
     {
         var lowerSearchTerm = searchTerm.ToLower();
         var filteredCustomers = dbContext.Customers
@@ -168,7 +187,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
             .Take(pageSize)
             .ToList();
 
-        var paginationModel = new Shared.PaginationModel<Models.CustomerModel>
+        var paginationModel = new Shared.BaseForgeOpsPagination<Models.CustomerModel>
         {
             Page = page,
             PageSize = pageSize,

@@ -1,6 +1,6 @@
 namespace ForgeOps.Api.Shared;
 
-public class PaginationModel<T>
+public class BaseForgeOpsPagination<T>
 {
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 10;
