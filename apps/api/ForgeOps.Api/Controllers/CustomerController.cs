@@ -55,7 +55,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         }
         catch (DbUpdateException e)
         {
-            return ServerErrorResponse(e, "An error occurred while saving the customer");
+            return ErrorResponse.HandleServerError(_logger, e, "An error occurred while saving the customer");
         }
 
         return CreatedAtAction(nameof(GetCustomerById), new { id = newCustomer.Id }, newCustomer);
@@ -104,7 +104,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         }
         catch (DbUpdateException e)
         {
-            return ServerErrorResponse(e, "An error occurred while updating the customer");
+            return ErrorResponse.HandleServerError(_logger, e, "An error occurred while updating the customer");
         }
 
         return Ok(existingCustomer);
@@ -130,7 +130,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         }
         catch (DbUpdateException e)
         {
-            return ServerErrorResponse(e, "An error occurred while deleting the customer");
+            return ErrorResponse.HandleServerError(_logger, e, "An error occurred while deleting the customer");
         }
 
         return NoContent();
@@ -179,17 +179,5 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
             Items = orderedFilteredCustomers
         };
         return paginationModel;
-    }
-
-    private ObjectResult ServerErrorResponse(DbUpdateException e, string message)
-    {
-        _logger.LogError(e, message);
-        return StatusCode(
-            StatusCodes.Status500InternalServerError,
-            new BaseForgeOpsError
-            {
-                ErrorMessage = message,
-                ErrorTimestamp = DateTime.UtcNow
-            });
     }
 }
