@@ -31,7 +31,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(Models.CustomerModel), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Dtos.CustomerResponseDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Shared.BaseForgeOpsError), StatusCodes.Status500InternalServerError)]
     public IActionResult CreateCustomer(
@@ -62,7 +62,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType(typeof(Models.CustomerModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Dtos.CustomerResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult GetCustomerById(Data.ForgeOpsDbContext dbContext, int id)
     {
@@ -73,11 +73,23 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
             return NotFound();
         }
 
-        return Ok(customer);
+        var customerResponse = new Dtos.CustomerResponseDto(
+            Id: customer.Id,
+            FirstName: customer.FirstName,
+            LastName: customer.LastName,
+            Email: customer.Email,
+            PhoneNumber: customer.PhoneNumber,
+            Address: customer.Address,
+            Notes: customer.Notes,
+            CreatedAt: customer.CreatedAt,
+            UpdatedAt: customer.UpdatedAt
+        );
+
+        return Ok(customerResponse);
     }
 
     [HttpPut("{id}")]
-    [ProducesResponseType(typeof(Models.CustomerModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Dtos.CustomerResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(Shared.BaseForgeOpsError), StatusCodes.Status500InternalServerError)]
@@ -107,7 +119,19 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
             return ErrorResponse.HandleServerError(_logger, e, "An error occurred while updating the customer");
         }
 
-        return Ok(existingCustomer);
+        var customerResponse = new Dtos.CustomerResponseDto(
+            Id: existingCustomer.Id,
+            FirstName: existingCustomer.FirstName,
+            LastName: existingCustomer.LastName,
+            Email: existingCustomer.Email,
+            PhoneNumber: existingCustomer.PhoneNumber,
+            Address: existingCustomer.Address,
+            Notes: existingCustomer.Notes,
+            CreatedAt: existingCustomer.CreatedAt,
+            UpdatedAt: existingCustomer.UpdatedAt
+        );
+
+        return Ok(customerResponse);
     }
 
     [HttpDelete("{id}")]
@@ -136,7 +160,7 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
         return NoContent();
     }
 
-    private Shared.BaseForgeOpsPagination<Models.CustomerModel> OrderDataByLastNameAndFirstNamePaginated(Data.ForgeOpsDbContext dbContext, int page, int pageSize)
+    private Shared.BaseForgeOpsPagination<Dtos.CustomerResponseDto> OrderDataByLastNameAndFirstNamePaginated(Data.ForgeOpsDbContext dbContext, int page, int pageSize)
     {
         var orderedCustomers = dbContext.Customers
             .OrderBy(c => c.LastName)
@@ -144,17 +168,27 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToList();
-        var paginationModel = new Shared.BaseForgeOpsPagination<Models.CustomerModel>
+        var paginationModel = new Shared.BaseForgeOpsPagination<Dtos.CustomerResponseDto>
         {
             Page = page,
             PageSize = pageSize,
             TotalCount = dbContext.Customers.Count(),
-            Items = orderedCustomers
+            Items = orderedCustomers.Select(c => new Dtos.CustomerResponseDto(
+                Id: c.Id,
+                FirstName: c.FirstName,
+                LastName: c.LastName,
+                Email: c.Email,
+                PhoneNumber: c.PhoneNumber,
+                Address: c.Address,
+                Notes: c.Notes,
+                CreatedAt: c.CreatedAt,
+                UpdatedAt: c.UpdatedAt
+            ))
         };
         return paginationModel;
     }
 
-    private Shared.BaseForgeOpsPagination<Models.CustomerModel> SearchCustomersByTermPaginated(Data.ForgeOpsDbContext dbContext, string searchTerm, int page, int pageSize)
+    private Shared.BaseForgeOpsPagination<Dtos.CustomerResponseDto> SearchCustomersByTermPaginated(Data.ForgeOpsDbContext dbContext, string searchTerm, int page, int pageSize)
     {
         var lowerSearchTerm = searchTerm.ToLower();
         var filteredCustomers = dbContext.Customers
@@ -171,12 +205,22 @@ public class CustomerController(ILogger<CustomerController> _logger) : Controlle
             .Take(pageSize)
             .ToList();
 
-        var paginationModel = new Shared.BaseForgeOpsPagination<Models.CustomerModel>
+        var paginationModel = new Shared.BaseForgeOpsPagination<Dtos.CustomerResponseDto>
         {
             Page = page,
             PageSize = pageSize,
             TotalCount = totalCount,
-            Items = orderedFilteredCustomers
+            Items = orderedFilteredCustomers.Select(c => new Dtos.CustomerResponseDto(
+                Id: c.Id,
+                FirstName: c.FirstName,
+                LastName: c.LastName,
+                Email: c.Email,
+                PhoneNumber: c.PhoneNumber,
+                Address: c.Address,
+                Notes: c.Notes,
+                CreatedAt: c.CreatedAt,
+                UpdatedAt: c.UpdatedAt
+            ))
         };
         return paginationModel;
     }
